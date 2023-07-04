@@ -1,0 +1,6 @@
+## 首先要确保Rproject与数据库再同一目录下：
+
+a = read.table('GSE42872_series_matrix.txt.gz',
+               sep = '\t',quote = "",fill = T,comment.char = '!',
+               header = T)
+  ## 这里参数设置很重要，听课
