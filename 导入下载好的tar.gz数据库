@@ -4,3 +4,4 @@ a = read.table('GSE42872_series_matrix.txt.gz',
                sep = '\t',quote = "",fill = T,comment.char = '!',
                header = T)
   ## 这里参数设置很重要，听课
+down
