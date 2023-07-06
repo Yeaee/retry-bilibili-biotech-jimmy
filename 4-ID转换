@@ -1,5 +1,10 @@
 ## ID转换
+
+## 导入数据库
 BiocManager::install('hugene10sttranscriptcluster.db')
+
+## 把a导入
+
 
 ## 开始
 library(hugene10sttranscriptcluster.db)
