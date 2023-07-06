@@ -66,3 +66,14 @@ tmp = by(exprSet,
           function(x) rownames(x)[which.max(rowMeans(x))] )
 
 
+##  再把tmp做成列表
+probes = as.character(tmp)
+
+
+##  老三样，这次是去除重复id
+dim(exprSet)
+exprSet=exprSet[rownames(exprSet) %in% ids$probe_id,]
+dim(exprSet)
+
+
+
