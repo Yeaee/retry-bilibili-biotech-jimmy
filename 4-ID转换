@@ -7,6 +7,10 @@ BiocManager::install('hugene10sttranscriptcluster.db')
 library(GEOquery)
 gset <- getGEO('GSE42872', destdir=".")
 
+
+##  去官网下载gz后缀文件，放入与Rproject同一文件夹下，大概几百kb
+
+
 ## 读取数据
 a = read.table('GSE42872_series_matrix.txt.gz',
                sep = '\t',quote = "",fill = T,comment.char = '!',
@@ -18,6 +22,8 @@ a1 = exprs(b)
 
 ##  把a的行名称改为ID号：
 rowname(a) = a[,1]
+a = a[,-1]
+
 
 ## 开始
 library(hugene10sttranscriptcluster.db)
