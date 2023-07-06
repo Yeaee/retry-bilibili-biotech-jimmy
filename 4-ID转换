@@ -20,16 +20,27 @@ a = read.table('GSE42872_series_matrix.txt.gz',
 b = gset[[1]]
 a1 = exprs(b)
 
+
 ##  把a的行名称改为ID号：
 rowname(a) = a[,1]
 a = a[,-1]
 
 
-## 开始
+## 开始导入包
 library(hugene10sttranscriptcluster.db)
 
+
+## 找对应关系 
 ids=toTable(hugene10sttranscriptclusterSYMBOL)
 length(unique(ids$symbol))
 tail(sort(table(ids$symbol)))
+
+##  查看不同探针个数下对应的基因数量
 table(sort(table(ids$symbol)))
 plot(table(sort(table(ids$symbol))))
+
+
+
+
+
+
