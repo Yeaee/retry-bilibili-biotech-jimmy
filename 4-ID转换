@@ -3,10 +3,21 @@
 ## 导入数据库
 BiocManager::install('hugene10sttranscriptcluster.db')
 
-## 把a导入
+##  下载数据
+library(GEOquery)
+gset <- getGEO('GSE42872', destdir=".")
+
+## 读取数据
 a = read.table('GSE42872_series_matrix.txt.gz',
                sep = '\t',quote = "",fill = T,comment.char = '!',
                header = T)
+
+##  获取a1
+b = gset[[1]]
+a1 = exprs(b)
+
+##  把a的行名称改为ID号：
+rowname(a) = a[,1]
 
 ## 开始
 library(hugene10sttranscriptcluster.db)
