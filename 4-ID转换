@@ -76,4 +76,5 @@ exprSet=exprSet[rownames(exprSet) %in% ids$probe_id,]
 dim(exprSet)
 
 
-
+##  提取目的探针(IGKC)的表达矩阵
+x = exprSet[ids[,2]=='IGKC',]
