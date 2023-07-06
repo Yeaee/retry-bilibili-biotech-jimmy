@@ -1,0 +1,11 @@
+## ID转换
+BiocManager::install('hugene10sttranscriptcluster.db')
+
+## 开始
+library(hugene10sttranscriptcluster.db)
+
+ids=toTable(hugene10sttranscriptclusterSYMBOL)
+length(unique(ids$symbol))
+tail(sort(table(ids$symbol)))
+table(sort(table(ids$symbol)))
+plot(table(sort(table(ids$symbol))))
