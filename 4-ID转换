@@ -40,7 +40,29 @@ table(sort(table(ids$symbol)))
 plot(table(sort(table(ids$symbol))))
 
 
+##  看下哪些基因不在probr_id里
+table(rownames(exprSet) %in% ids$probe_id)
+
+## 查看探针数
+dim(exprSet)
+
+##  做一个过滤，过滤掉不在里面的
+exprSet=exprSet[rownames(exprSet) %in% ids$probe_id,]
+
+##  再次查看
+dim(exprSet)
+
+##  改探针顺序为了和表达矩阵顺序一样
+ids=ids[match(rownames(exprSet),ids$probe_id),]
+
+## 核查是否一样
+head(ids)
+exprSet[1:5,1:5]
 
 
+##通过ID的symbol对表达矩阵进行分类
+tmp = by(exprSet,
+         ids$symbol,
+          function(x) rownames(x)[which.max(rowMeans(x))] )
 
 
