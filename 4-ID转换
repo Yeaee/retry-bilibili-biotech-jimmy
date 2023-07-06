@@ -4,7 +4,9 @@
 BiocManager::install('hugene10sttranscriptcluster.db')
 
 ## 把a导入
-
+a = read.table('GSE42872_series_matrix.txt.gz',
+               sep = '\t',quote = "",fill = T,comment.char = '!',
+               header = T)
 
 ## 开始
 library(hugene10sttranscriptcluster.db)
