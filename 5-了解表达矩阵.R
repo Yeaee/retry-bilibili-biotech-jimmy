@@ -4,8 +4,9 @@
 
 ## 首先要安装好必要的包，要哪个安装哪个，注意，安装的时候包名称区分大小写，如下：
 BiocManager::install('CLL')
+BiocManager::install('hgu95av2.db')
 
-## 接着跑这个代码，得到作为本次材料的表达矩阵（到66行）
+## 接着跑这个代码，得到作为本次材料的表达矩阵（到67行）
 
 if(T){
   # BiocManager::install('CLL')
@@ -40,19 +41,19 @@ if(T){
   ids=ids[match(rownames(exprSet),ids$probe_id),]
   head(ids)
   exprSet[1:5,1:5]
- if(F){
-   tmp = by(exprSet,ids$symbol,
-            function(x) rownames(x)[which.max(rowMeans(x))] )
-   probes = as.character(tmp)
-   dim(exprSet)
-   exprSet=exprSet[rownames(exprSet) %in% probes ,]
-   dim(exprSet)
-   
-   rownames(exprSet)=ids[match(rownames(exprSet),ids$probe_id),2]
-   exprSet[1:5,1:5]
- }
-
-
+  if(F){
+    tmp = by(exprSet,ids$symbol,
+             function(x) rownames(x)[which.max(rowMeans(x))] )
+    probes = as.character(tmp)
+    dim(exprSet)
+    exprSet=exprSet[rownames(exprSet) %in% probes ,]
+    dim(exprSet)
+    
+    rownames(exprSet)=ids[match(rownames(exprSet),ids$probe_id),2]
+    exprSet[1:5,1:5]
+  }
+  
+  
   identical(ids$probe_id,rownames(exprSet))
   dat=exprSet
   ids$median=apply(dat,1,median) #ids新建median这一列，列名为median，同时对dat这个矩阵按行操作，取每一行的中位数，将结果给到median这一列的每一行
@@ -69,14 +70,7 @@ if(T){
 ## 进行操作，把数字的行名转换成基因名称：
 exprSet=dat
 
-##  查看常见基因的样本表达量
-exprSet['GAPDH',]
-boxplot(exprSet[,1])
-boxplot(exprSet['GAPDH',])
-exprSet['ACTB',]
-
-
-##  查看基因表达矩阵的分布图
+## 查看基因表达矩阵的分布图
 library(reshape2)
 exprSet_L=melt(exprSet)
 colnames(exprSet_L)=c('probe','sample','value')
@@ -84,6 +78,22 @@ exprSet_L$group=rep(group_list,each=nrow(exprSet))
 head(exprSet_L)
 ### ggplot2 
 library(ggplot2)
+
+###  开始画各种图
 p=ggplot(exprSet_L,
          aes(x=sample,y=value,fill=group))+geom_boxplot()
+print(p)
+###  这下面一堆图跟上面的图都是一个意思，形式不一样。
+p=ggplot(exprSet_L,aes(x=sample,y=value,fill=group))+geom_violin()
+print(p)
+p=ggplot(exprSet_L,aes(value,fill=group))+geom_histogram(bins = 200)+facet_wrap(~sample, nrow = 4)
+print(p)
+p=ggplot(exprSet_L,aes(value,col=group))+geom_density()+facet_wrap(~sample, nrow = 4)
+print(p)
+p=ggplot(exprSet_L,aes(value,col=group))+geom_density() 
+print(p)
+p=ggplot(exprSet_L,aes(x=sample,y=value,fill=group))+geom_boxplot()
+p=p+stat_summary(fun.y="mean",geom="point",shape=23,size=3,fill="red")
+p=p+theme_set(theme_set(theme_bw(base_size=20)))
+p=p+theme(text=element_text(face='bold'),axis.text.x=element_text(angle=30,hjust=1),axis.title=element_blank())
 print(p)
