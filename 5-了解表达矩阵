@@ -1,6 +1,6 @@
 ##  了解表达矩阵
 
-##  内参即内部参照，一般是指由管家基因编码表达的蛋白，它们在各组织和细胞中的表达相对恒定，在检测蛋白的表达水平变化时常用它来做参照物，类似windows系统文件
+##  内参即内部参照，一般是指由管家基因编码表达的蛋白，它们在各组织和细胞中的表达相对恒定，在检测蛋白的表达水平变化时常用它来做参照物，类似marker
 
 ## 首先要安装好必要的包，要哪个安装哪个，注意，安装的时候包名称区分大小写，如下：
 BiocManager::install('CLL')
@@ -68,3 +68,22 @@ if(T){
 
 ## 进行操作，把数字的行名转换成基因名称：
 exprSet=dat
+
+##  查看常见基因的样本表达量
+exprSet['GAPDH',]
+boxplot(exprSet[,1])
+boxplot(exprSet['GAPDH',])
+exprSet['ACTB',]
+
+
+##  查看基因表达矩阵的分布图
+library(reshape2)
+exprSet_L=melt(exprSet)
+colnames(exprSet_L)=c('probe','sample','value')
+exprSet_L$group=rep(group_list,each=nrow(exprSet))
+head(exprSet_L)
+### ggplot2 
+library(ggplot2)
+p=ggplot(exprSet_L,
+         aes(x=sample,y=value,fill=group))+geom_boxplot()
+print(p)
