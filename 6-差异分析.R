@@ -50,5 +50,8 @@ choose_gene=head(rownames(nrDEG),25)
 choose_matrix=exprSet[choose_gene,]
 choose_matrix=t(scale(t(choose_matrix)))
 pheatmap(choose_matrix)
+#颜色深浅就是表达量的高低
+
 
 ###最后，差异分析很简单，只要搞懂input和output。
+### output：差异分析的结果得到几个值：p值，矫正p值，logFC
