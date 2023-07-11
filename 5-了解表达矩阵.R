@@ -97,3 +97,20 @@ p=p+stat_summary(fun.y="mean",geom="point",shape=23,size=3,fill="red")
 p=p+theme_set(theme_set(theme_bw(base_size=20)))
 p=p+theme(text=element_text(face='bold'),axis.text.x=element_text(angle=30,hjust=1),axis.title=element_blank())
 print(p)
+
+### 画pca图
+plot(hclust(dist(t(exprSet))))
+
+### 改col names
+colnames(exprSet) = paste(group_list,1:22,sep='')
+
+###再次plot
+plot(hclust(dist(t(exprSet))))
+
+### 画PCA图
+
+# BiocManager::install('ggfortify')
+library(ggfortify)
+df=as.data.frame(t(exprSet))
+df$group=group_list 
+autoplot(prcomp( df[,1:(ncol(df)-1)] ), data=df,colour = 'group')
