@@ -18,3 +18,5 @@ jimmy-GEO的源码：https://github.com/jmzeng1314/GEO
 6-差异分析的代码：https://blog.csdn.net/weixin_47855187/article/details/123978660
 
 差异分析一文不够：https://cloud.tencent.com/developer/article/1078357
+
+视频中涉及代码：https://github.com/jmzeng1314/GEO/blob/master/GSE42872_main/step3-DEG.R
