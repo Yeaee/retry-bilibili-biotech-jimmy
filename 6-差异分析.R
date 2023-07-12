@@ -1,5 +1,8 @@
 ###  先打开网址:http://www.bio-info-trainee.com/bioconductor_China/software/limma.html
 
+###  表达矩阵是指基因表达数据的矩阵，其中每一行代表一个基因，每一列代表一个样本。分组矩阵是指样本分组信息的矩阵，其中每一行代表一个样本，每一列代表一个分组。
+###  差异比较矩阵是指需要进行差异分析的矩阵，其中每一行代表一个基因，每一列代表两个样本之间的比较。
+
 ###  前置准备：得到待处理的表达矩阵
 suppressPackageStartupMessages(library(CLL))
 data(sCLLex)
