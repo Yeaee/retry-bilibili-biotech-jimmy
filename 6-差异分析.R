@@ -12,12 +12,12 @@ pdata=pData(sCLLex)
 group_list=as.character(pdata[,2])
 dim(exprSet)
 
-###  查一下矩阵是不是一样，注意！这里视频里的跟这个不一样，progress和stable是对的
+###  表达矩阵exprSet已经准备好了，查一下矩阵是不是一样，注意！这里视频里的跟这个不一样，progress和stable是对的
 exprSet
 dim(exprSet)
 group_list
 
-### 设计矩阵
+### 设计分组矩阵
 library(limma)
 design <- model.matrix(~0+factor(group_list))
 colnames(design) = levels(factor(group_list))
