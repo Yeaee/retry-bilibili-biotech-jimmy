@@ -14,3 +14,5 @@ http://www.bio-info-trainee.com/1399.html
 jimmy-GEO的源码：https://github.com/jmzeng1314/GEO
 
 用limma做差异分析：http://www.bio-info-trainee.com/bioconductor_China/software/limma.html
+
+6-差异分析的代码：https://blog.csdn.net/weixin_47855187/article/details/123978660
