@@ -3,7 +3,7 @@
 ## 安装第三方包（ID数据库）
 BiocManager::install('hugene10sttranscriptcluster.db')
 
-##  下载数据
+##  下载数据aaa
 library(GEOquery)
 gset <- getGEO('GSE42872', destdir=".")
 
