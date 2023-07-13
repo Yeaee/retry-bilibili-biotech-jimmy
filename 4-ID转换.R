@@ -78,3 +78,7 @@ dim(exprSet)
 
 ##  提取目的探针(IGKC)的表达矩阵
 x = exprSet[ids[,2]=='IGKC',]
+
+## 把行名改成基因名  
+rownames(exprSet)=ids[match(rownames(exprSet),ids$probe_id),2]
+
