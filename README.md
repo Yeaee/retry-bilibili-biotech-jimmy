@@ -20,3 +20,5 @@ jimmy-GEO的源码：https://github.com/jmzeng1314/GEO
 差异分析一文不够：https://cloud.tencent.com/developer/article/1078357
 
 视频中涉及代码：https://github.com/jmzeng1314/GEO/blob/master/GSE42872_main/step3-DEG.R
+
+表达矩阵可视化大全：http://bio-info-trainee.com/tmp/basic_visualization_for_expression_matrix.html
