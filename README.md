@@ -22,3 +22,5 @@ jimmy-GEO的源码：https://github.com/jmzeng1314/GEO
 视频中涉及代码：https://github.com/jmzeng1314/GEO/blob/master/GSE42872_main/step3-DEG.R
 
 表达矩阵可视化大全：http://bio-info-trainee.com/tmp/basic_visualization_for_expression_matrix.html
+
+P8 7-火山图那篇一文就够：https://github.com/ixxmu/mp_duty/issues/2065
