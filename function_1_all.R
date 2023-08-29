@@ -237,6 +237,38 @@ visualize_nrDEG_by_volcano_plot<-function(DEG){
 visualize_nrDEG_by_volcano_plot(GSE_42872_nrDEG)
 
 
+###################
+#function12.1:visualize_nrDEG_by_volcano_plot_v2
+#解释：可以在图里显示几个显著差异基因名称。
+visualize_nrDEG_by_volcano_plot_v2 <- function(deg){
+  library(ggpubr)
+  nrDEG=deg
+  head(nrDEG)
+  attach(nrDEG)
+  plot(logFC,-log10(P.Value))
+  library(ggpubr)
+  df=nrDEG
+  df$v= -log10(P.Value) #df新增加一列'v',值为-log10(P.Value)
+  ggscatter(df, x = "logFC", y = "v",size=0.5)
+  
+  df$g=ifelse(df$P.Value>0.01,'stable', #if 判断：如果这一基因的P.Value>0.01，则为stable基因
+              ifelse( df$logFC >2,'up', #接上句else 否则：接下来开始判断那些P.Value<0.01的基因，再if 判断：如果logFC >1.5,则为up（上调）基因
+                      ifelse( df$logFC < -2,'down','stable') )#接上句else 否则：接下来开始判断那些logFC <1.5 的基因，再if 判断：如果logFC <1.5，则为down（下调）基因，否则为stable基因
+  )
+  table(df$g)
+  df$name=rownames(df)
+  head(df)
+  ggscatter(df, x = "logFC", y = "v",size=0.5,color = 'g')
+  ggscatter(df, x = "logFC", y = "v", color = "g",size = 0.5,
+            label = "name", repel = T,
+            #label.select = rownames(df)[df$g != 'stable'] ,
+            label.select = head(rownames(deg)), #挑选一些基因在图中显示出来
+            palette = c("#00AFBB", "#E7B800", "#FC4E07") )
+}
+visualize_nrDEG_by_volcano_plot_v2(GSE_42872_nrDEG)
+
+
+
 
 ###################
 #function13:visualize_the_top25_Differential_Expressed_Genes_by_pheatmap
