@@ -64,7 +64,7 @@ make_GSEs_ids <- function(symbol){
 ##在网站http://www.bio-info-trainee.com/1399.html
 ##寻找该GPL对应的bioc_package为hugene10sttranscriptcluster；
 ##手动输入.db格式和SYMBOL格式。
-BiocManager::install("hugene10sttranscriptcluster.db")
+#BiocManager::install("hugene10sttranscriptcluster.db")
 library("hugene10sttranscriptcluster.db")
 GSE_42872_ids <- make_GSEs_ids(hugene10sttranscriptclusterSYMBOL)
 
@@ -193,7 +193,7 @@ GSE_42872_contrast_matrix = make_contrast_matrix(GSE_42872_group_list,GSE_42872_
 #function11:make_nrDEGs_by_differential_analysis
 #输入：GSE*****_final_exprSet,GSE_*****_design_matrix,GSE_*****_contract_matrix.
 #输出：非冗余差异表达基因，就是有显著差异的基因片段。nrDEG(non-redundant differentially expressed genes)
-#解释：把三个矩阵喂进去，得到差异分析结果,注意已经按logFC从高到低排列好了。(DEG:Differential Expressed Genes)
+#解释：把三个矩阵喂进去，得到差异分析结果,注意这个版本的nrDEG已经按logFC的绝对值排好序了，其中logFC有正有负。(DEG:Differential Expressed Genes)
 make_nrDEGs_by_differential_analysis<- function(new_exprSet,design,contrast_matrix){
   library(limma)
   fit <- lmFit(new_exprSet,design)
@@ -259,30 +259,77 @@ visualize_top25_Differential_Expressed_Genes_by_pheatmap(GSE42872_final_exprSet,
 #function14:visualize_all_gene_expression_level_by_pheatmap
 #输入：GSE*****_final_exprSet,nrDEG
 #输出：全部基因片段表达量的热图，颜色深浅即为表达量的高低。
-#备注：这个没什么可读性，可以不用，把rowname去掉就可以用了。
+#备注：这个没什么可读性，可以不用，把rowname去掉就可以用了(已去除）。
 visualize_all_gene_expression_level_by_pheatmap <- function(new_exprSet,nrDEG){
   library(pheatmap)
   choose_gene=rownames(nrDEG)
   choose_matrix=new_exprSet[choose_gene,]
   choose_matrix=t(scale(t(choose_matrix)))
-  pheatmap(choose_matrix)
+  pheatmap(choose_matrix,show_rownames = FALSE)
   #颜色深浅就是表达量的高低
 }
 visualize_all_gene_expression_level_by_pheatmap(GSE42872_final_exprSet,GSE_42872_nrDEG)
 
 
 
-#########################
-#function16:pick_significant_DEGs
-#解释：当时做nrDEGs的时候已经排列好了，最上面就是最显著的。定个阈值取阈值上的且p<0.05的就行了。
-
-
-
-
-
+###################
+#function16:pick_significant_DEGs_by_fixed_number
+#输入：目标选择的基因数量，nrDEG矩阵。
+#输出：前多少个显著基因的矩阵。
+#解释：直接把原来的矩阵排序后，取前面固定个就行了。
+pick_significant_DEGs_by_fixed_number<- function(fixed_number,nrDEG){
+  nrDEG <- nrDEG[order(abs(nrDEG[,1]), decreasing=TRUE),]
+  a = head(rownames(nrDEG),fixed_number)
+  return(a)
+}
+GSE_42872_significant_DEGs<- pick_significant_DEGs_by_fixed_number(25,GSE_42872_nrDEG)
 
 
 
 ###################
-#function16：make_result_annotation_for_significant_DEGs
+#function17:pick_significant_DEGs_by_logFC
+#输入：想要设定的阈值，即为logFC_t,以及原先的nrDEG矩阵。
+#输出：阈值筛选后的significant_DEG矩阵。
+#解释：当时做nrDEGs的时候已经排列好了，最上面就是最显著的。定个阈值取阈值上的且p<0.05的就行了。
+#解释：ifelse语句：#test：条件语句 #yes：条件为True时执行 #no：条件为False时执行 ifelse(test, yes, no)
+pick_significant_DEGs_by_logFC <- function(logFC_t,nrDEG){
+  gene = rownames(nrDEG)
+  data(geneList, package="DOSE")
+  
+  gene <- names(geneList)[abs(geneList) > logFC_t]
+  gene.df <- bitr(gene, fromType = "ENTREZID",
+                  toType = c("ENSEMBL", "SYMBOL"),
+                  OrgDb = org.Hs.eg.db)
+  return(gene.df)
+}
+#范例：
+GSE_42872_significant_DEGs <-pick_significant_DEGs_by_logFC(2,GSE_42872_nrDEG)
 
+
+###################
+#function18：make_annotation_for_significant_DEGs
+
+###################
+#目前还没用到
+pick_significant_DEGs <- function(logFC_t,deg){
+  library(ggplot2)
+  library(clusterProfiler)
+  library(org.Hs.eg.db)
+  deg$g=ifelse(deg$P.Value>0.05,'stable',
+               ifelse( deg$logFC > logFC_t,'UP',
+                       ifelse( deg$logFC < -logFC_t,'DOWN','stable'))
+  )
+  DEG=merge(DEG,df,by.y='SYMBOL',by.x='symbol')
+  deg$symbol=rownames(deg)
+  df <- bitr(unique(deg$symbol), fromType = "SYMBOL",
+             toType = c( "ENTREZID"),
+             OrgDb = org.Hs.eg.db)
+  DEG=deg
+  DEG=merge(DEG,df,by.y='SYMBOL',by.x='symbol')
+  save(DEG,file = 'anno_DEG.Rdata')
+  gene_up= DEG[DEG$g == 'UP','ENTREZID'] 
+  gene_down=DEG[DEG$g == 'DOWN','ENTREZID'] 
+  gene_diff=c(gene_up,gene_down)
+  return(gene_diff)
+}
+a <- pick_significant_DEGs(1.5,GSE_42872_nrDEG)
