@@ -157,3 +157,132 @@ make_sure_the_final_exprSet_can_be_used <- function(new_exprSet,group_list){
 }
 #案例：
 make_sure_the_final_exprSet_can_be_used(GSE42872_final_exprSet,GSE_42872_group_list)
+
+###################
+#function9:make_design_matrix
+#输入：GSE*****_final_exprSet,GSE_*****_group_list。
+#输出：design矩阵。
+make_design_matrix <- function(new_exprSet,group_list){
+  design <- model.matrix(~0+factor(group_list))
+  colnames(design) = levels(factor(group_list))
+  rownames(design) = colnames(new_exprSet)
+  return(design)
+}
+#案例：
+GSE_42872_design_matrix <- make_design_matrix(GSE42872_final_exprSet,GSE_42872_group_list)
+
+
+
+###################
+#function10:make_contrast_matrix
+#输入：GSE_*****_group_list,GSE_*****_design_matrix
+#输出：contrast矩阵。
+#解释：把实验组作为1，把控制组作为-1.
+make_contrast_matrix <- function(group_list,design){
+  library(limma)
+  contrast.matrix<-makeContrasts("case-control",
+                                 levels = design)
+  return(contrast.matrix)
+}
+#案例：
+GSE_42872_contrast_matrix = make_contrast_matrix(GSE_42872_group_list,GSE_42872_design_matrix)
+
+
+
+###################
+#function11:make_nrDEGs_by_differential_analysis
+#输入：GSE*****_final_exprSet,GSE_*****_design_matrix,GSE_*****_contract_matrix.
+#输出：非冗余差异表达基因，就是有显著差异的基因片段。nrDEG(non-redundant differentially expressed genes)
+#解释：把三个矩阵喂进去，得到差异分析结果,注意已经按logFC从高到低排列好了。(DEG:Differential Expressed Genes)
+make_nrDEGs_by_differential_analysis<- function(new_exprSet,design,contrast_matrix){
+  library(limma)
+  fit <- lmFit(new_exprSet,design)
+  ##step2
+  fit2 <- contrasts.fit(fit, contrast_matrix) ##这一步很重要，大家可以自行看看效果
+  fit2 <- eBayes(fit2)  ## default no trend !!!
+  ##eBayes() with trend=TRUE
+  ##step3
+  tempOutput = topTable(fit2, coef=1, n=Inf)
+  nrDEG = na.omit(tempOutput) 
+  #write.csv(nrDEG2,"limma_notrend.results.csv",quote = F)
+  return(nrDEG)
+}
+GSE_42872_nrDEG = make_nrDEGs_by_differential_analysis(GSE42872_final_exprSet,GSE_42872_design_matrix,GSE_42872_contrast_matrix)
+
+
+
+###################
+#function12:visualize_nrDEG_by_volcano_plot
+#输入：nrDEG
+#输出：可视化的火山图，把logFC>2,p<0.05的显著差异基因用重点色标注。
+visualize_nrDEG_by_volcano_plot<-function(DEG){
+  logFC_cutoff <- with(DEG,mean(abs( logFC)) + 2*sd(abs( logFC)) )
+  DEG$change = as.factor(ifelse(DEG$P.Value < 0.05 & abs(DEG$logFC) > logFC_cutoff,
+                                ifelse(DEG$logFC > logFC_cutoff ,'UP','DOWN'),'NOT')
+  )
+  this_tile <- paste0('Cutoff for logFC is ',round(logFC_cutoff,3),
+                      '\nThe number of up gene is ',nrow(DEG[DEG$change =='UP',]) ,
+                      '\nThe number of down gene is ',nrow(DEG[DEG$change =='DOWN',])
+  )
+  this_tile
+  head(DEG)
+  g = ggplot(data=DEG, aes(x=logFC, y=-log10(P.Value), color=change)) +
+    geom_point(alpha=0.4, size=1.75) +
+    theme_set(theme_set(theme_bw(base_size=20)))+
+    xlab("log2 fold change") + ylab("-log10 p-value") +
+    ggtitle( this_tile  ) + theme(plot.title = element_text(size=15,hjust = 0.5))+
+    scale_colour_manual(values = c('blue','black','red'))  ## corresponding to the levels(res$change)
+  print(g)
+}
+visualize_nrDEG_by_volcano_plot(GSE_42872_nrDEG)
+
+
+
+###################
+#function13:visualize_the_top25_Differential_Expressed_Genes_by_pheatmap
+#输入：GSE*****_final_exprSet,nrDEG
+#输出：top25差异基因热图
+visualize_top25_Differential_Expressed_Genes_by_pheatmap <- function(new_exprSet,nrDEG){
+  library(pheatmap)
+  # 选取头部的25个差异最显著的基因，做一个小表达矩阵
+  choose_gene=head(rownames(nrDEG),25)
+  choose_matrix=new_exprSet[choose_gene,]
+  choose_matrix=t(scale(t(choose_matrix)))
+  pheatmap(choose_matrix)
+  #颜色深浅就是表达量的高低
+}
+visualize_top25_Differential_Expressed_Genes_by_pheatmap(GSE42872_final_exprSet,GSE_42872_nrDEG)
+
+
+
+###################
+#function14:visualize_all_gene_expression_level_by_pheatmap
+#输入：GSE*****_final_exprSet,nrDEG
+#输出：全部基因片段表达量的热图，颜色深浅即为表达量的高低。
+#备注：这个没什么可读性，可以不用，把rowname去掉就可以用了。
+visualize_all_gene_expression_level_by_pheatmap <- function(new_exprSet,nrDEG){
+  library(pheatmap)
+  choose_gene=rownames(nrDEG)
+  choose_matrix=new_exprSet[choose_gene,]
+  choose_matrix=t(scale(t(choose_matrix)))
+  pheatmap(choose_matrix)
+  #颜色深浅就是表达量的高低
+}
+visualize_all_gene_expression_level_by_pheatmap(GSE42872_final_exprSet,GSE_42872_nrDEG)
+
+
+
+#########################
+#function16:pick_significant_DEGs
+#解释：当时做nrDEGs的时候已经排列好了，最上面就是最显著的。定个阈值取阈值上的且p<0.05的就行了。
+
+
+
+
+
+
+
+
+###################
+#function16：make_result_annotation_for_significant_DEGs
+
