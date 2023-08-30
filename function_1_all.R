@@ -309,13 +309,16 @@ visualize_all_gene_expression_level_by_pheatmap(GSE42872_final_exprSet,GSE_42872
 ###################
 #function16:pick_significant_DEGs_by_fixed_number
 #输入：目标选择的基因数量，nrDEG矩阵。
-#输出：前多少个显著基因的矩阵。
+#输出：前多少个显著基因的矩阵,格式为三列。
 #解释：直接把原来的矩阵排序后，取前面固定个就行了。
 pick_significant_DEGs_by_fixed_number<- function(fixed_number,nrDEG){
   a = head(rownames(nrDEG),fixed_number)
-  return(a)
+  a.df <- bitr(gene, fromType = "SYMBOL",
+                  toType = c("ENSEMBL", "ENTREZID"),
+                  OrgDb = org.Hs.eg.db)
+  return(a.df)
 }
-GSE_42872_significant_DEGs<- pick_significant_DEGs_by_fixed_number(25,GSE_42872_nrDEG)
+GSE_42872_significant_DEGs.df<- pick_significant_DEGs_by_fixed_number(25,GSE_42872_nrDEG)
 
 
 
@@ -336,14 +339,18 @@ pick_significant_DEGs_by_logFC <- function(logFC_t,nrDEG){
   return(gene.df)
 }
 #范例：
-GSE_42872_significant_DEGs <-pick_significant_DEGs_by_logFC(2,GSE_42872_nrDEG)
+GSE_42872_significant_DEGs.df <-pick_significant_DEGs_by_logFC(1.5,GSE_42872_nrDEG)
 
 
 
 ###################
-#function18：make_annotation_for_significant_DEGs
-
-
+#function18：make_KEGG_pathway_enrichment_analysis_for_picked_significant_DEGs
+#直接使用现成的函数：
+kk <- enrichKEGG( gene = GSE_42872_significant_DEGs.df$ENTREZID,
+                  organism ='hsa',
+                  pvalueCutoff = 0.05
+                    )
+head(kk)[,1:6]
 
 
 
