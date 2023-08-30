@@ -190,7 +190,7 @@ GSE_42872_contrast_matrix = make_contrast_matrix(GSE_42872_group_list,GSE_42872_
 
 
 ###################
-#function11:make_nrDEGs_by_differential_analysis
+#function11:make_nrDEGs_by_differential_analysis_
 #输入：GSE*****_final_exprSet,GSE_*****_design_matrix,GSE_*****_contract_matrix.
 #输出：非冗余差异表达基因，就是有显著差异的基因片段。nrDEG(non-redundant differentially expressed genes)
 #解释：把三个矩阵喂进去，得到差异分析结果,注意这个版本的nrDEG已经按logFC的绝对值排好序了，其中logFC有正有负。(DEG:Differential Expressed Genes)
@@ -208,8 +208,9 @@ make_nrDEGs_by_differential_analysis<- function(new_exprSet,design,contrast_matr
   nrDEG <- nrDEG[order(abs(nrDEG[,1]), decreasing=TRUE),]
   return(nrDEG)
 }
+#案例：
 GSE_42872_nrDEG = make_nrDEGs_by_differential_analysis(GSE42872_final_exprSet,GSE_42872_design_matrix,GSE_42872_contrast_matrix)
-
+save(GSE_42872_nrDEG,file = 'GSE_42872_nrDEG.Rdata')
 
 
 ###################
@@ -344,7 +345,45 @@ GSE_42872_significant_DEGs.df <-pick_significant_DEGs_by_logFC(1.5,GSE_42872_nrD
 
 
 ###################
-#function18：make_KEGG_pathway_enrichment_analysis_for_picked_significant_DEGs
+#function18:make_annotation_for_nrDEG
+#存在报错：'select()' returned 1:many mapping between keys and columns
+make_annotation_for_nrDEG <- function(logFC_t,deg){
+  ## 不同的阈值，筛选到的差异基因数量就不一样，后面的超几何分布检验结果就大相径庭。
+  deg$g=ifelse(deg$P.Value>0.05,'stable',
+               ifelse( deg$logFC > logFC_t,'UP',
+                       ifelse( deg$logFC < -logFC_t,'DOWN','stable') )
+  )
+  table(deg$g)
+  head(deg)
+  deg$symbol=rownames(deg)
+  library(ggplot2)
+  library(clusterProfiler)
+  library(org.Hs.eg.db)
+  df <- bitr(unique(deg$symbol), fromType = "SYMBOL",
+             toType = c( "ENTREZID"),
+             OrgDb = org.Hs.eg.db)
+  head(df)
+  DEG=deg
+  head(DEG)
+  
+  DEG=merge(DEG,df,by.y='SYMBOL',by.x='symbol')
+  head(DEG)
+  return(DEG)
+  
+}
+#案例：
+GSE_42872_annotation_nrDEG <- make_annotation_for_nrDEG(1.5,GSE_42872_nrDEG)
+save(DEG,file = 'GSE_42872_annotation_nrDEG.Rdata')
+
+
+
+
+
+
+
+
+###################
+#function19：make_KEGG_pathway_enrichment_analysis_for_picked_significant_DEGs
 #直接使用现成的函数：
 kk <- enrichKEGG( gene = GSE_42872_significant_DEGs.df$ENTREZID,
                   organism ='hsa',
