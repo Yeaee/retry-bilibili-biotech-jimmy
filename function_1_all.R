@@ -205,6 +205,7 @@ make_nrDEGs_by_differential_analysis<- function(new_exprSet,design,contrast_matr
   tempOutput = topTable(fit2, coef=1, n=Inf)
   nrDEG = na.omit(tempOutput) 
   #write.csv(nrDEG2,"limma_notrend.results.csv",quote = F)
+  nrDEG <- nrDEG[order(abs(nrDEG[,1]), decreasing=TRUE),]
   return(nrDEG)
 }
 GSE_42872_nrDEG = make_nrDEGs_by_differential_analysis(GSE42872_final_exprSet,GSE_42872_design_matrix,GSE_42872_contrast_matrix)
@@ -240,6 +241,7 @@ visualize_nrDEG_by_volcano_plot(GSE_42872_nrDEG)
 ###################
 #function12.1:visualize_nrDEG_by_volcano_plot_v2
 #解释：可以在图里显示几个显著差异基因名称。
+#解释：ifelse语句：#test：条件语句 #yes：条件为True时执行 #no：条件为False时执行 ifelse(test, yes, no)
 visualize_nrDEG_by_volcano_plot_v2 <- function(deg){
   library(ggpubr)
   nrDEG=deg
@@ -310,7 +312,6 @@ visualize_all_gene_expression_level_by_pheatmap(GSE42872_final_exprSet,GSE_42872
 #输出：前多少个显著基因的矩阵。
 #解释：直接把原来的矩阵排序后，取前面固定个就行了。
 pick_significant_DEGs_by_fixed_number<- function(fixed_number,nrDEG){
-  nrDEG <- nrDEG[order(abs(nrDEG[,1]), decreasing=TRUE),]
   a = head(rownames(nrDEG),fixed_number)
   return(a)
 }
@@ -321,10 +322,10 @@ GSE_42872_significant_DEGs<- pick_significant_DEGs_by_fixed_number(25,GSE_42872_
 ###################
 #function17:pick_significant_DEGs_by_logFC
 #输入：想要设定的阈值，即为logFC_t,以及原先的nrDEG矩阵。
-#输出：阈值筛选后的significant_DEG矩阵。
-#解释：当时做nrDEGs的时候已经排列好了，最上面就是最显著的。定个阈值取阈值上的且p<0.05的就行了。
-#解释：ifelse语句：#test：条件语句 #yes：条件为True时执行 #no：条件为False时执行 ifelse(test, yes, no)
+#输出：阈值筛选后的significant_DEG矩阵，格式为三列。
 pick_significant_DEGs_by_logFC <- function(logFC_t,nrDEG){
+  library(clusterProfiler)
+  library(org.Hs.eg.db)
   gene = rownames(nrDEG)
   data(geneList, package="DOSE")
   
@@ -338,8 +339,17 @@ pick_significant_DEGs_by_logFC <- function(logFC_t,nrDEG){
 GSE_42872_significant_DEGs <-pick_significant_DEGs_by_logFC(2,GSE_42872_nrDEG)
 
 
+
 ###################
 #function18：make_annotation_for_significant_DEGs
+
+
+
+
+
+
+
+
 
 ###################
 #目前还没用到
